@@ -475,7 +475,7 @@ footer::before {
 // ── CONFIG ──────────────────────────────────────────────────────────────
 // Add more app config URLs here as you build more apps
 const APP_CONFIGS = [
-  "https://raw.githubusercontent.com/DamienSmith428/LinkVault/main/docs/config.json"
+  "https://raw.githubusercontent.com/DamienSmith428/linkvault-web/main/docs/config.json"
 ];
 
 // ── PARTICLES ────────────────────────────────────────────────────────────
@@ -570,16 +570,11 @@ function buildCard(config) {
   const version = app.latestVersion || '?';
   const eyebrow = app.eyebrow || '';
 
-  // Icon — try to build a GitHub raw URL from the config source
+  // Icon — use explicit icon from config if present
   let iconHtml = `<div class="app-icon-placeholder">📦</div>`;
-  try {
-    const raw = config._configUrl;
-    const match = raw.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//);
-    if (match) {
-      const iconUrl = `https://raw.githubusercontent.com/${match[1]}/${match[2]}/${match[3]}/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`;
-      iconHtml = `<img src="${iconUrl}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
-    }
-  } catch(_) {}
+  if (config.app && config.app.icon) {
+    iconHtml = `<img src="${config.app.icon}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
+  }
 
   const card = document.createElement('div');
   card.className = 'app-card fade-in';
