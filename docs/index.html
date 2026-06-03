@@ -570,10 +570,15 @@ function buildCard(config) {
   const version = app.latestVersion || '?';
   const eyebrow = app.eyebrow || '';
 
-  // Icon — use explicit icon from config if present
+  // Icon — use explicit icon field, or derive from github.repo (Android source)
   let iconHtml = `<div class="app-icon-placeholder">📦</div>`;
-  if (config.app && config.app.icon) {
-    iconHtml = `<img src="${config.app.icon}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
+  const iconSrc = (config.app && config.app.icon)
+    ? config.app.icon
+    : (config.github && config.github.repo)
+      ? `https://raw.githubusercontent.com/${config.github.repo}/master/app/src/main/res/drawable/app_icon_main.png`
+      : null;
+  if (iconSrc) {
+    iconHtml = `<img src="${iconSrc}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
   }
 
   const card = document.createElement('div');
