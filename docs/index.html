@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SideStack — Indie Android Apps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Oxanium:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #03040a;
+  --surface: #080d18;
+  --border: #0f1e35;
+  --cyan: #00ffe0;
+  --magenta: #ff00c8;
+  --yellow: #ffe600;
+  --orange: #ff6b00;
+  --text: #d4e8ff;
+  --muted: #3a5070;
+  --card: #060e1c;
+  --glow-cyan: rgba(0,255,224,0.15);
+  --glow-magenta: rgba(255,0,200,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+/* Grid BG */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(0,255,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,224,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#particleCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.6; }
+
+.orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; animation: orbDrift 20s ease-in-out infinite alternate; }
+.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,255,224,0.12), transparent 70%); top: -200px; right: -150px; animation-duration: 18s; }
+.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,0,200,0.1), transparent 70%); bottom: -100px; left: -150px; animation-duration: 24s; animation-direction: alternate-reverse; }
+.orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,230,0,0.07), transparent 70%); top: 50%; left: 40%; animation-duration: 30s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(60px,40px) scale(1.15); } }
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 48px;
+  background: rgba(3,4,10,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,255,224,0.1);
+}
+nav::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+  opacity: 0.6;
+}
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--cyan); text-decoration: none; text-shadow: 0 0 20px rgba(0,255,224,0.6); transition: text-shadow 0.3s; }
+.nav-logo:hover { text-shadow: 0 0 40px rgba(0,255,224,1), 0 0 80px rgba(0,255,224,0.4); }
+.nav-logo span { color: var(--text); text-shadow: none; }
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s, text-shadow 0.2s; position: relative; }
+.nav-links a::after { content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 1px; background: var(--cyan); transition: width 0.3s; }
+.nav-links a:hover { color: var(--cyan); text-shadow: 0 0 12px rgba(0,255,224,0.6); }
+.nav-links a:hover::after { width: 100%; }
+.nav-github { color: var(--muted); text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; }
+.nav-github:hover { color: var(--cyan); }
+
+main { position: relative; z-index: 1; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 60px;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,255,224,0.05);
+  border: 1px solid rgba(0,255,224,0.25);
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  animation: fadeSlideUp 0.6s ease both;
+}
+.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.4); } }
+
+.hero-eyebrow { font-family: 'Oxanium', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 5px; text-transform: uppercase; color: var(--magenta); margin-bottom: 16px; animation: fadeSlideUp 0.6s 0.1s ease both; }
+
+.hero h1 { display: flex; flex-direction: column; gap: 0; animation: fadeSlideUp 0.7s 0.2s ease both; }
+.line1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 12vw, 140px); line-height: 0.9; letter-spacing: 4px; color: var(--text); }
+.line2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 12vw, 140px); line-height: 0.9; letter-spacing: 4px; background: linear-gradient(90deg, var(--cyan), var(--magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: none; }
+
+.hero-sub { max-width: 520px; margin: 28px auto 0; font-size: 13px; line-height: 1.9; color: var(--muted); animation: fadeSlideUp 0.7s 0.3s ease both; }
+
+.hero-stats { display: flex; gap: 48px; margin-top: 52px; animation: fadeSlideUp 0.7s 0.4s ease both; }
+.stat-item { text-align: center; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--cyan); display: block; }
+.stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; display: block; }
+
+/* SEARCH */
+.search-section {
+  padding: 60px 48px 0;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.search-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+.search-wrapper { position: relative; }
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 20px 16px 52px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: rgba(0,255,224,0.4); box-shadow: 0 0 0 3px rgba(0,255,224,0.06), 0 0 20px rgba(0,255,224,0.1); }
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 16px;
+  pointer-events: none;
+}
+.search-count { font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-top: 10px; text-align: right; }
+
+/* APP GRID */
+.apps-section {
+  padding: 40px 48px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--text); }
+.section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+.app-grid { display: grid; gap: 20px; }
+
+/* APP CARD */
+.app-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  text-decoration: none;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.app-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,255,224,0.03), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.app-card:hover { border-color: rgba(0,255,224,0.3); box-shadow: 0 0 40px rgba(0,255,224,0.08), 0 8px 32px rgba(0,0,0,0.4); transform: translateY(-2px); }
+.app-card:hover::before { opacity: 1; }
+
+.app-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.app-card:hover .app-card-accent { opacity: 1; }
+
+.app-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-icon-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px; }
+.app-icon-placeholder { font-size: 28px; }
+
+.app-info { min-width: 0; }
+.app-name { font-family: 'Oxanium', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; letter-spacing: 1px; }
+.app-tagline { font-size: 11px; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+.app-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.app-tag {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.app-tag.cyan { border-color: rgba(0,255,224,0.25); color: var(--cyan); background: rgba(0,255,224,0.04); }
+.app-tag.magenta { border-color: rgba(255,0,200,0.25); color: var(--magenta); background: rgba(255,0,200,0.04); }
+
+.app-action { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.app-version { font-size: 10px; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(0,255,224,0.4);
+  color: var(--cyan);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.btn-download:hover { background: rgba(0,255,224,0.08); border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,255,224,0.2); }
+.btn-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.btn-page:hover { border-color: rgba(255,0,200,0.4); color: var(--magenta); }
+
+/* LOADING / EMPTY / ERROR */
+.state-box {
+  text-align: center;
+  padding: 64px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+.state-box-icon { font-size: 36px; margin-bottom: 16px; }
+.state-box-title { font-family: 'Oxanium', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; letter-spacing: 1px; }
+.state-box-sub { font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+
+.loading-dots { display: inline-flex; gap: 6px; margin-top: 16px; }
+.loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: dotBounce 1.2s ease-in-out infinite; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBounce { 0%,80%,100% { transform:scale(0.6); opacity:0.3; } 40% { transform:scale(1); opacity:1; } }
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0 48px;
+  position: relative;
+  z-index: 2;
+}
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+  opacity: 0.4;
+}
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 20px rgba(0,255,224,0.4); }
+.footer-logo span { color: var(--text); text-shadow: none; }
+.footer-meta { font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-align: right; line-height: 1.8; }
+.footer-meta a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-meta a:hover { color: var(--cyan); }
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.fade-in { animation: fadeSlideUp 0.5s ease both; }
+
+/* No results */
+.no-results { display: none; }
+.no-results.visible { display: block; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  nav { padding: 14px 20px; }
+  .nav-links { gap: 20px; }
+  .apps-section, .search-section { padding-left: 20px; padding-right: 20px; }
+  .app-card { grid-template-columns: 56px 1fr; gap: 16px; padding: 20px; }
+  .app-action { display: none; }
+  .hero-stats { gap: 24px; }
+  footer { padding: 28px 20px; flex-direction: column; align-items: flex-start; }
+  .footer-meta { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">Side<span>Stack</span></a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#apps">Apps</a></li>
+      <li><a href="https://github.com/DamienSmith428" target="_blank">GitHub ↗</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span>Indie Android Store</span>
+    </div>
+    <p class="hero-eyebrow">No Play Store. No Nonsense.</p>
+    <h1>
+      <span class="line1">Side</span>
+      <span class="line2">Stack.</span>
+    </h1>
+    <p class="hero-sub" id="hero-sub">A curated collection of indie Android apps built for people who want control over their software. Download direct. No trackers. No accounts.</p>
+    <div class="hero-stats" id="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value" id="stat-apps">—</span>
+        <span class="stat-label">Apps</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Trackers</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">MIT</span>
+        <span class="stat-label">License</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <div class="search-section" id="apps">
+    <span class="search-label">// Search apps</span>
+    <div class="search-wrapper">
+      <span class="search-icon">⌕</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search by name, tag, or description..." autocomplete="off" spellcheck="false">
+    </div>
+    <div class="search-count" id="searchCount"></div>
+  </div>
+
+  <!-- APP LIST -->
+  <section class="apps-section">
+    <div class="section-header">
+      <span class="section-title">All Apps</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="app-grid" id="appGrid">
+      <!-- loaded dynamically -->
+      <div class="state-box" id="loadingState">
+        <div class="state-box-icon">⟳</div>
+        <div class="state-box-title">Loading Store</div>
+        <div class="state-box-sub">Fetching app manifests...</div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div class="no-results" id="noResults">
+      <div class="state-box">
+        <div class="state-box-icon">◌</div>
+        <div class="state-box-title">No apps found</div>
+        <div class="state-box-sub">Try a different search term</div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="footer-logo">Side<span>Stack</span></div>
+  <div class="footer-meta">
+    Built by <a href="https://github.com/DamienSmith428" target="_blank">DamienSmith428</a> · Open source on <a href="https://github.com/DamienSmith428/SideStack" target="_blank">GitHub ↗</a><br>
+    Sideloading done right.
+  </div>
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Add more app config URLs here as you build more apps
+const APP_CONFIGS = [
+  "https://raw.githubusercontent.com/DamienSmith428/LinkVault/main/docs/config.json"
+];
+
+// ── PARTICLES ────────────────────────────────────────────────────────────
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function spawnParticle() {
+  return {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    life: 0,
+    maxLife: 200 + Math.random() * 300,
+    size: Math.random() * 1.5 + 0.3,
+    color: Math.random() > 0.6 ? '0,255,224' : Math.random() > 0.5 ? '255,0,200' : '255,230,0'
+  };
+}
+
+for (let i = 0; i < 80; i++) particles.push(spawnParticle());
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, i) => {
+    p.x += p.vx; p.y += p.vy; p.life++;
+    if (p.life > p.maxLife) particles[i] = spawnParticle();
+    const alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${p.color},${alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ── STORE LOADER ──────────────────────────────────────────────────────────
+let allApps = [];
+
+async function fetchAppConfig(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('fetch failed');
+    const data = await r.json();
+    // Attach the config source URL so we can build the page link
+    data._configUrl = url;
+    return data;
+  } catch (e) {
+    console.warn('Failed to load config:', url, e);
+    return null;
+  }
+}
+
+function getAppPageUrl(config) {
+  // Derive the GitHub Pages URL from the raw config URL
+  // https://raw.githubusercontent.com/USER/REPO/main/docs/config.json
+  // → https://USER.github.io/REPO
+  try {
+    const raw = config._configUrl;
+    const match = raw.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\//);
+    if (match) return `https://${match[1]}.github.io/${match[2]}`;
+  } catch (_) {}
+  if (config.github && config.github.baseUrl) return config.github.baseUrl;
+  return '#';
+}
+
+function getLatestDownloadUrl(config) {
+  // Find the recommended (arm64) download
+  try {
+    const repo = config.github.repo;
+    const version = config.app.latestVersion;
+    const rec = config.downloads.find(d => d.recommended) || config.downloads[0];
+    const filename = rec.filename.replace('{version}', version);
+    return `https://github.com/${repo}/releases/download/v${version}/${filename}`;
+  } catch (_) {
+    return config.github ? config.github.baseUrl + '/releases/latest' : '#';
+  }
+}
+
+function buildCard(config) {
+  const app = config.app;
+  const pageUrl = getAppPageUrl(config);
+  const dlUrl = getLatestDownloadUrl(config);
+  const version = app.latestVersion || '?';
+  const eyebrow = app.eyebrow || '';
+
+  // Icon — try to build a GitHub raw URL from the config source
+  let iconHtml = `<div class="app-icon-placeholder">📦</div>`;
+  try {
+    const raw = config._configUrl;
+    const match = raw.match(/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//);
+    if (match) {
+      const iconUrl = `https://raw.githubusercontent.com/${match[1]}/${match[2]}/${match[3]}/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`;
+      iconHtml = `<img src="${iconUrl}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
+    }
+  } catch(_) {}
+
+  const card = document.createElement('div');
+  card.className = 'app-card fade-in';
+  card.setAttribute('data-name', app.name.toLowerCase());
+  card.setAttribute('data-desc', (app.description || '').toLowerCase());
+  card.setAttribute('data-tags', (eyebrow || '').toLowerCase());
+
+  card.innerHTML = `
+    <div class="app-card-accent"></div>
+    <div class="app-icon-wrap">${iconHtml}</div>
+    <div class="app-info">
+      <div class="app-name">${app.name}</div>
+      <div class="app-tagline">${app.tagline || ''}</div>
+      <div class="app-tags">
+        ${eyebrow ? `<span class="app-tag cyan">${eyebrow}</span>` : ''}
+        <span class="app-tag magenta">Free</span>
+        <span class="app-tag">MIT</span>
+        <span class="app-tag">No Ads</span>
+      </div>
+    </div>
+    <div class="app-action">
+      <span class="app-version">v${version}</span>
+      <a href="${dlUrl}" class="btn-download" onclick="event.stopPropagation()">↓ Download</a>
+      <a href="${pageUrl}" class="btn-page" target="_blank" onclick="event.stopPropagation()">View App →</a>
+    </div>
+  `;
+
+  card.addEventListener('click', () => { window.location.href = pageUrl; });
+  return card;
+}
+
+async function loadStore() {
+  const grid = document.getElementById('appGrid');
+  const loadingState = document.getElementById('loadingState');
+
+  const results = await Promise.all(APP_CONFIGS.map(fetchAppConfig));
+  allApps = results.filter(Boolean);
+
+  loadingState.remove();
+
+  if (allApps.length === 0) {
+    grid.innerHTML = `
+      <div class="state-box">
+        <div class="state-box-icon">⚠</div>
+        <div class="state-box-title">Couldn't load apps</div>
+        <div class="state-box-sub">Check back later or <a href="https://github.com/DamienSmith428" style="color:var(--cyan);text-decoration:none">visit GitHub ↗</a></div>
+      </div>`;
+    return;
+  }
+
+  allApps.forEach(cfg => grid.appendChild(buildCard(cfg)));
+  document.getElementById('stat-apps').textContent = allApps.length;
+  updateSearchCount(allApps.length);
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
+function updateSearchCount(n) {
+  document.getElementById('searchCount').textContent = `${n} app${n !== 1 ? 's' : ''} available`;
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  const cards = document.querySelectorAll('.app-card');
+  let visible = 0;
+  cards.forEach(card => {
+    const hay = card.getAttribute('data-name') + ' ' + card.getAttribute('data-desc') + ' ' + card.getAttribute('data-tags');
+    const match = !q || hay.includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  updateSearchCount(visible);
+  const noResults = document.getElementById('noResults');
+  noResults.classList.toggle('visible', visible === 0 && q.length > 0);
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+loadStore();
+</script>
+</body>
+</html>
