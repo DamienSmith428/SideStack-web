@@ -1,5 +1,6 @@
 {
   "apps": [
-    "https://raw.githubusercontent.com/DamienSmith428/SideStack-app-public/refs/heads/main/docs/config.json"
+    "https://raw.githubusercontent.com/DamienSmith428/SideStack-app-public/refs/heads/main/docs/config.json",
+    "https://raw.githubusercontent.com/DamienSmith428/linkvault-web/main/docs/config.json"
   ]
 }
