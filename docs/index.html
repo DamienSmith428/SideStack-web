@@ -685,7 +685,7 @@ function buildCard(config) {
       <div class="app-tags">
         ${eyebrow ? `<span class="app-tag cyan">${eyebrow}</span>` : ''}
         <span class="app-tag magenta">Free</span>
-        <span class="app-tag">MIT</span>
+        ${(() => { const s = (config.stats || []).find(s => s.label === 'License'); const l = s && s.value && s.value !== 'N/A' ? s.value : null; return l ? `<span class="app-tag">${l}</span>` : ''; })()}
         <span class="app-tag">No Ads</span>
       </div>
     </div>
