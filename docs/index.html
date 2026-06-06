@@ -247,7 +247,10 @@ main { position: relative; z-index: 1; }
 
 .app-info { min-width: 0; }
 .app-name { font-family: 'Oxanium', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; letter-spacing: 1px; }
-.app-tagline { font-size: 11px; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+.app-tagline { font-size: 11px; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+.app-developer { font-size: 10px; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; opacity: 0.6; }
+.app-developer-link { color: var(--cyan); opacity: 0.8; text-decoration: none; transition: opacity 0.2s, text-shadow 0.2s; }
+.app-developer-link:hover { opacity: 1; text-shadow: 0 0 10px rgba(0,255,224,0.6); }
 .app-tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .app-tag {
   font-size: 9px;
@@ -633,6 +636,19 @@ function getLatestDownloadUrl(config) {
   }
 }
 
+function getDeveloperName(config) {
+  try {
+    // Extract username from raw.githubusercontent.com URL
+    // e.g. https://raw.githubusercontent.com/DamienSmith428/linkvault-web/main/docs/config.json
+    const url = config._configUrl || '';
+    const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\//);
+    if (match) return match[1];
+  } catch (e) {}
+  // Fallback: use github.repo if available
+  if (config.github && config.github.repo) return config.github.repo.split('/')[0];
+  return null;
+}
+
 function buildCard(config) {
   const app = config.app;
   const pageUrl = getAppPageUrl(config);
@@ -651,6 +667,8 @@ function buildCard(config) {
     iconHtml = `<img src="${iconSrc}" alt="${app.name} icon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="app-icon-placeholder" style="display:none">📦</div>`;
   }
 
+  const developer = getDeveloperName(config);
+
   const card = document.createElement('div');
   card.className = 'app-card fade-in';
   card.setAttribute('data-name', app.name.toLowerCase());
@@ -663,6 +681,7 @@ function buildCard(config) {
     <div class="app-info">
       <div class="app-name">${app.name}</div>
       <div class="app-tagline">${app.tagline || ''}</div>
+      ${developer ? `<div class="app-developer">Developer: <a href="https://github.com/${developer}" target="_blank" class="app-developer-link" onclick="event.stopPropagation()">${developer}</a></div>` : ''}
       <div class="app-tags">
         ${eyebrow ? `<span class="app-tag cyan">${eyebrow}</span>` : ''}
         <span class="app-tag magenta">Free</span>
