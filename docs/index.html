@@ -795,8 +795,6 @@ function getLatestDownloadUrl(config) {
 
 function getDeveloperName(config) {
   try {
-    // Extract username from raw.githubusercontent.com URL
-    // e.g. https://raw.githubusercontent.com/DamienSmith428/linkvault-web/main/docs/config.json
     const url = config._configUrl || '';
     const match = url.match(/raw\.githubusercontent\.com\/([^/]+)\//);
     if (match) return match[1];
