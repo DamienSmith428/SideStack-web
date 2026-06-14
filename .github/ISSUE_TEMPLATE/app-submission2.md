@@ -1,5 +1,5 @@
 ---
-name: App Submission
+name: App Submission2
 about: Submit your Android app to the SideStack store. All fields required — incomplete
   submissions will be closed.
 title: ''
