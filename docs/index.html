@@ -649,42 +649,47 @@ footer::before {
 <div class="divider"></div>
 
 <section class="dev-section" id="developers">
-  <div class="dev-badge">&#10022; Coming Soon</div>
+  <div class="dev-badge">&#10022; Now Available</div>
   <p class="dev-eyebrow">For Developers</p>
   <h2 class="dev-title">Publish Your App<br>to <span>SideStack.</span></h2>
   <p class="dev-description">
-    We're rolling out the SideStack Release Tool — a free desktop app that automates your entire GitHub release pipeline.
-    Create your repo, generate your app page, upload your APKs, and submit your config URL to the store.
+    The SideStack Release Tool is out now — a free Windows desktop app that automates your entire GitHub release pipeline.
+    Generate your app store page, create your repo, upload your APKs, and get your app ready for the store.
     No Play Store. No gatekeeping. Just your app, distributed your way.
   </p>
 
   <div class="dev-steps">
     <div class="dev-step">
       <div class="dev-step-num">01</div>
-      <h3>Download the Tool</h3>
-      <p>Get the SideStack Release Tool — a free Windows desktop app that handles all the GitHub infrastructure automatically.</p>
+      <h3>Download the Release Tool</h3>
+      <p>Grab the SideStack Release Tool from the repo below. It's a free Windows desktop app — no install required, just run it.</p>
     </div>
     <div class="dev-step">
       <div class="dev-step-num">02</div>
-      <h3>Set Up Your App</h3>
-      <p>Enter your app info, drag in your APKs and optional source folder. The tool generates your web repo, app page, changelog, and GitHub release in one click.</p>
+      <h3>Generate Your App Page</h3>
+      <p>Enter your app info, drop in your APKs, and let the tool do the rest. It creates your GitHub repo, generates your app store page, and pushes a release — all automatically.</p>
     </div>
     <div class="dev-step">
       <div class="dev-step-num">03</div>
-      <h3>Submit Your Config URL</h3>
-      <p>Once your app is published the tool gives you a raw config URL. Send it to DamienSmith428 and your app goes live in the store.</p>
+      <h3>Copy Your Config URL</h3>
+      <p>Once your app is published, grab the raw URL to your <code style="color:var(--cyan);font-size:11px">docs/config.json</code> file from your repo. It'll look something like:<br><span style="color:var(--muted);font-size:10px;letter-spacing:0.5px">raw.githubusercontent.com/YOU/YOUR-REPO/main/docs/config.json</span></p>
     </div>
     <div class="dev-step">
       <div class="dev-step-num">04</div>
-      <h3>You're Live</h3>
-      <p>Your app appears in the SideStack Android store automatically on every user's next refresh. No approval wait. No listing fees.</p>
+      <h3>Submit to the Store</h3>
+      <p>Open an issue on the SideStack repo using the <strong style="color:var(--cyan)">App Submission</strong> issue template. Fill out every field completely and submit. Any submission with incomplete information will be denied. A dedicated submission tool is in the works — for now, issues work great.</p>
     </div>
   </div>
 
-  <a href="https://github.com/DamienSmith428" target="_blank" class="dev-notify">
-    <div class="dev-notify-icon">&#128276;</div>
-    Follow @DamienSmith428 on GitHub to get notified when the tool drops
-  </a>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;flex-wrap:wrap;">
+    <a href="https://github.com/DamienSmith428/SideStack_Developers_Tool" target="_blank" class="btn-download" style="font-size:12px;padding:14px 28px;border-radius:8px;">
+      ↓ Download SideStack Release Tool
+    </a>
+    <a href="https://github.com/DamienSmith428/SideStack-web/issues" target="_blank" class="dev-notify">
+      <div class="dev-notify-icon">&#43;</div>
+      Submit your app — open an issue with your config URL
+    </a>
+  </div>
 </section>
 
 </main>
