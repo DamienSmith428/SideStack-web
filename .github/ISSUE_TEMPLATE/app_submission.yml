@@ -1,0 +1,96 @@
+name: App Submission
+description: Submit your Android app to the SideStack store. All fields required — incomplete submissions will be closed.
+title: "[App Submission] "
+labels: ["app-submission"]
+body:
+
+  - type: input
+    id: app_name
+    attributes:
+      label: App Name
+      description: The full name of your app as it should appear in the store.
+      placeholder: e.g. LinkVault
+    validations:
+      required: true
+
+  - type: input
+    id: tagline
+    attributes:
+      label: Short Description / Tagline
+      description: One sentence that describes what your app does.
+      placeholder: e.g. A privacy-focused link manager for Android.
+    validations:
+      required: true
+
+  - type: input
+    id: config_url
+    attributes:
+      label: Raw Config URL
+      description: The raw GitHub URL to your docs/config.json file.
+      placeholder: https://raw.githubusercontent.com/YOU/YOUR-REPO/main/docs/config.json
+    validations:
+      required: true
+
+  - type: input
+    id: repo_url
+    attributes:
+      label: App Repo URL
+      description: Link to the public GitHub repository for your app.
+      placeholder: https://github.com/YOU/YOUR-REPO
+    validations:
+      required: true
+
+  - type: input
+    id: github_username
+    attributes:
+      label: Developer GitHub Username
+      placeholder: e.g. DamienSmith428
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Latest Version
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: architectures
+    attributes:
+      label: Supported Architectures
+      placeholder: e.g. arm64-v8a, armeabi-v7a, x86_64
+    validations:
+      required: true
+
+  - type: input
+    id: min_android
+    attributes:
+      label: Minimum Android Version
+      placeholder: e.g. Android 8.0 (API 26)
+    validations:
+      required: true
+
+  - type: input
+    id: tags
+    attributes:
+      label: App Category / Tags
+      placeholder: e.g. Utilities, Media, Tools
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: All boxes must be checked before submitting.
+      options:
+        - label: My `docs/config.json` is publicly accessible at the URL provided above
+          required: true
+        - label: My app has a public GitHub release with APK(s) attached
+          required: true
+        - label: I generated my app page using the SideStack Release Tool
+          required: true
+        - label: All fields in this submission are filled out completely and accurately
+          required: true
